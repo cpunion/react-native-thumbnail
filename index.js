@@ -1,6 +1,14 @@
 
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 const { RNThumbnail } = NativeModules;
 
-export default RNThumbnail;
+export default {
+  get(path, options) {
+    if (Platform.OS === 'android') {
+      return RNThumbnail.get(path, options || {});
+    } else {
+      return RNThumbnail.get(path);
+    }
+  }
+};

@@ -7,6 +7,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import android.media.ThumbnailUtils;
 import android.provider.MediaStore;
@@ -38,7 +39,7 @@ public class RNThumbnailModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void get(String filePath, Promise promise) {
+  public void get(String filePath, ReadableMap options, Promise promise) {
     filePath = filePath.replace("file://","");
     MediaMetadataRetriever retriever = new MediaMetadataRetriever();
     retriever.setDataSource(filePath);
@@ -47,6 +48,17 @@ public class RNThumbnailModule extends ReactContextBaseJavaModule {
     String fullPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/thumb";
 
     try {
+      if (options.hasKey("saveToDir")) {
+        String saveToDir = options.getString("saveToDir");
+
+        if (saveToDir.startsWith("/")) {
+          fullPath = saveToDir;
+        } else {
+          File original = new File(filePath);
+          fullPath = original.getParent().toString() + "/" + saveToDir;
+        }
+      }
+
       File dir = new File(fullPath);
       if (!dir.exists()) {
         dir.mkdirs();
